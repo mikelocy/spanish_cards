@@ -104,6 +104,48 @@ If a device's stock Spanish voice turns out to be poor, the upgrade path is
 pre-generating audio files per card at build time and serving them statically —
 that needs a third-party TTS vendor, which this app currently avoids.
 
+## Installing it / offline
+
+It is a PWA, so it installs to the home screen and runs without browser chrome:
+
+- **Android/Chrome** offers a real "Install app" (banner or ⋮ menu).
+- **iOS** never prompts — Share → Add to Home Screen. iOS gives an installed app
+  its own storage partition, so stars and skips made in Safari do **not** carry
+  over. Install first, then mark words.
+
+Four pieces make that work, and all four are required — the manifest's
+`display: standalone` is what drops the address bar, and without
+`apple-touch-icon` iOS uses a screenshot of the page as the icon:
+
+| File | Role |
+|---|---|
+| `public/manifest.webmanifest` | name, `display: standalone`, icons |
+| `public/icon-192.png`, `icon-512.png` | generated — see below |
+| `public/sw.js` | offline cache |
+| head tags in `index.html` | manifest link, apple-touch-icon, apple-mobile-web-app-* |
+
+**Offline.** The service worker is **network-first everywhere**, deliberately: a
+stale deck is a worse failure than a slow load, since decks change whenever a page
+is photographed. The cache is the no-signal fallback, not the fast path. Install
+pulls down *every* set rather than only visited ones, so a trip with no signal has
+the whole book. `/add`, `/api/login`, `/api/session` and `/api/extract` are never
+cached — a dead page that looks alive is worse than an honest failure.
+
+Practice, flipping, stars/skips and pronunciation all work offline (speech uses
+the device's own voice; a device that picked a *network* Spanish voice would go
+quiet offline, but on-device voices are the norm). Adding words does not — it
+needs the server. Verified working in airplane mode on a real phone.
+
+The app must be loaded online **once** first; that visit registers the worker and
+precaches. Bump `CACHE` in `sw.js` to force every client to discard its cache.
+
+**Icons** are generated with no image dependencies — raw pixels through a
+hand-rolled PNG encoder — so they're reproducible from source:
+
+```bash
+node tools/make-icon.js
+```
+
 ## Keyboard / touch
 
 Space or Enter flips · ← → change cards · `s` stars · `k` marks known ·
