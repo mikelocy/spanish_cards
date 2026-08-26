@@ -393,9 +393,15 @@
     return state.listen && state.dir === 'es-en' && speech.supported;
   }
 
+  // The speaker belongs wherever the Spanish is on screen, and nowhere else:
+  // on the English face it is clutter at best and an answer key at worst.
   function audioAllowed() {
     if (!speech.supported) return false;
-    return state.dir === 'es-en' || state.flipped;
+    if (listenActive()) {
+      // Front face has its own big replay button; the back shows the spelling.
+      return state.flipped;
+    }
+    return state.dir === 'es-en' ? !state.flipped : state.flipped;
   }
 
   function syncSpeak() {
