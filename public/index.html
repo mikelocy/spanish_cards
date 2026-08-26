@@ -53,11 +53,21 @@
         <div class="face front">
           <span id="front-lang" class="lang"></span>
           <p id="front-text" class="word"></p>
+          <button id="replay" class="replay" type="button" aria-label="Play it again" hidden>
+            <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/>
+              <path d="M16 8.5a4.5 4.5 0 0 1 0 7" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M18.6 5.9a8 8 0 0 1 0 12.2" fill="none" stroke="currentColor"
+                    stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
           <span id="front-from" class="from"></span>
         </div>
         <div class="face back">
           <span id="back-lang" class="lang"></span>
           <p id="back-text" class="word"></p>
+          <p id="back-spanish" class="back-es" hidden></p>
           <p id="back-note" class="note"></p>
         </div>
       </div>
@@ -75,6 +85,7 @@
       <button id="dir" class="tool">ES &rarr; EN</button>
       <button id="shuffle" class="tool">Shuffle: off</button>
       <button id="filter" class="tool">All words</button>
+      <button id="listen" class="tool" hidden>Listen: off</button>
     </div>
   </section>
 

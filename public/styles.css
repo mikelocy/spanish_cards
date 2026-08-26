@@ -404,3 +404,27 @@ h1, h2 { margin: 0; line-height: 1.2; }
 .add-cta { margin: 1rem 0 0; text-align: center; }
 .add-cta a { color: var(--ink-soft); font-size: .85rem; font-weight: 600; text-decoration: none; }
 .add-cta a:hover { color: var(--accent); }
+
+/* ── Listening mode ──────────────────────────────────────── */
+.replay {
+  width: 96px; height: 96px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform .12s ease;
+}
+.replay:active { transform: scale(.94); }
+.replay svg { display: block; margin-left: -3px; }
+
+/* Spelling, revealed with the answer — smaller than the English so the
+   meaning still leads. */
+.back-es {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--ink-soft);
+}

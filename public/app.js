@@ -14,7 +14,8 @@
     frontFrom: $('front-from'),
     backLang: $('back-lang'), backText: $('back-text'), backNote: $('back-note'),
     prev: $('prev'), next: $('next'), flip: $('flip'),
-    dir: $('dir'), shuffle: $('shuffle'), filter: $('filter'),
+    dir: $('dir'), shuffle: $('shuffle'), filter: $('filter'), listen: $('listen'),
+    replay: $('replay'), backSpanish: $('back-spanish'),
     studyEmpty: $('study-empty'),
   };
 
@@ -44,6 +45,7 @@
     dir: store.get('sf:dir', 'es-en'),
     shuffle: store.get('sf:shuffle', false),
     filter: 'practicing',
+    listen: store.get('sf:listen', false),   // hear it, don't read it
   };
 
   // ---- Speech ----
@@ -279,16 +281,27 @@
 
     const card = entry.card;
     const esFirst = state.dir === 'es-en';
-    el.frontLang.textContent = esFirst ? 'Español' : 'English';
+    const listening = listenActive();
+
+    el.frontLang.textContent = listening ? 'Escucha' : (esFirst ? 'Español' : 'English');
     el.backLang.textContent = esFirst ? 'English' : 'Español';
+
+    // In listening mode the front deliberately shows nothing to read.
+    el.frontText.hidden = listening;
     el.frontText.textContent = esFirst ? card.es : card.en;
+    el.replay.hidden = !listening;
+
     el.backText.textContent = esFirst ? card.en : card.es;
+    // Flipping a heard word should also show how it is spelled.
+    el.backSpanish.hidden = !listening;
+    el.backSpanish.textContent = listening ? card.es : '';
     el.backNote.textContent = card.note || '';
     el.backNote.hidden = !card.note;
 
     // With several sets in the pile, say which one this card came from.
     const multi = state.selected.size > 1;
-    el.frontFrom.textContent = multi ? entry.deckTitle : 'tap to flip';
+    el.frontFrom.textContent = multi ? entry.deckTitle
+      : (listening ? 'tap the card when you have it' : 'tap to flip');
     el.frontFrom.classList.toggle('is-deck', multi);
 
     el.counter.textContent = (state.pos + 1) + ' / ' + state.order.length;
@@ -321,6 +334,8 @@
     } else {
       render();
     }
+    // Called from a click/keypress, so iOS counts this as user-initiated audio.
+    if (listenActive()) playCurrent();
   }
 
   function toggleStar() {
@@ -371,6 +386,18 @@
     renderDeckList();
   }
 
+  // Listening only makes sense reading Spanish->English: in the other
+  // direction the audio would simply be the answer.
+  function listenActive() {
+    return state.listen && state.dir === 'es-en' && speech.supported;
+  }
+
+  function playCurrent() {
+    const entry = currentEntry();
+    if (!entry) return;
+    speech.say(spokenForm(entry.card), setSpeaking);
+  }
+
   function setSpeaking(on) {
     el.speak.classList.toggle('speaking', on);
   }
@@ -393,6 +420,9 @@
     el.shuffle.classList.toggle('on', state.shuffle);
     const filterLabel = { practicing: 'Practicing', starred: 'Starred only', skipped: 'Skipped' };
     el.filter.textContent = filterLabel[state.filter];
+    el.listen.hidden = !speech.supported;
+    el.listen.textContent = 'Listen: ' + (state.listen ? 'on' : 'off');
+    el.listen.classList.toggle('on', listenActive());
     el.filter.classList.toggle('on', state.filter !== 'practicing');
   }
 
@@ -414,9 +444,34 @@
     await applySelection();
   });
 
+  el.replay.addEventListener('click', (e) => {
+    e.stopPropagation();   // the card itself flips; this button only replays
+    playCurrent();
+  });
+
+  el.listen.addEventListener('click', () => {
+    state.listen = !state.listen;
+    store.set('sf:listen', state.listen);
+    // Listening implies the Spanish->English direction.
+    if (state.listen && state.dir !== 'es-en') {
+      state.dir = 'es-en';
+      store.set('sf:dir', state.dir);
+    }
+    state.flipped = false;
+    el.card.classList.remove('flipped');
+    syncTools();
+    render();
+    if (listenActive()) playCurrent();
+  });
+
   el.dir.addEventListener('click', () => {
     state.dir = state.dir === 'es-en' ? 'en-es' : 'es-en';
     store.set('sf:dir', state.dir);
+    // Hearing the answer would defeat the point, so drop out of listening.
+    if (state.dir !== 'es-en' && state.listen) {
+      state.listen = false;
+      store.set('sf:listen', false);
+    }
     state.flipped = false;
     el.card.classList.remove('flipped');
     syncTools();
