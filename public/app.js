@@ -7,7 +7,8 @@
   const el = {
     study: $('study'),
     deckList: $('deck-list'), homeEmpty: $('home-empty'), selectAll: $('select-all'),
-    title: $('deck-title'), source: $('deck-source'), star: $('star'), speak: $('speak'),
+    title: $('deck-title'), source: $('deck-source'),
+    star: $('star'), skip: $('skip'), speak: $('speak'),
     fill: $('progress-fill'), counter: $('counter'),
     card: $('card'), frontLang: $('front-lang'), frontText: $('front-text'),
     frontFrom: $('front-from'),
@@ -34,14 +35,15 @@
     index: [],          // deck summaries, in book order
     cache: {},          // slug -> full deck, fetched on demand
     selected: new Set(),
-    stars: {},          // slug -> Set of Spanish strings
+    stars: {},          // slug -> Set of Spanish strings (practice these more)
+    skips: {},          // slug -> Set of Spanish strings (he's got these)
     pool: [],           // [{ slug, deckTitle, card }] across every selected set
     order: [],          // indices into pool, after filter + shuffle
     pos: 0,
     flipped: false,
     dir: store.get('sf:dir', 'es-en'),
     shuffle: store.get('sf:shuffle', false),
-    filter: 'all',
+    filter: 'practicing',
   };
 
   // ---- Speech ----
@@ -117,6 +119,13 @@
   };
   const isStarred = (entry) => starsFor(entry.slug).has(entry.card.es);
 
+  const skipKey = (slug) => `sf:skipped:${slug}`;
+  const skipsFor = (slug) => {
+    if (!state.skips[slug]) state.skips[slug] = new Set(store.get(skipKey(slug), []));
+    return state.skips[slug];
+  };
+  const isSkipped = (entry) => skipsFor(entry.slug).has(entry.card.es);
+
   // ---- Data ----
   async function ensureDecks(slugs) {
     const missing = slugs.filter((s) => !state.cache[s]);
@@ -143,7 +152,9 @@
 
   function rebuildOrder() {
     let idx = state.pool.map((_, i) => i);
-    if (state.filter === 'starred') idx = idx.filter((i) => isStarred(state.pool[i]));
+    if (state.filter === 'practicing') idx = idx.filter((i) => !isSkipped(state.pool[i]));
+    else if (state.filter === 'starred') idx = idx.filter((i) => isStarred(state.pool[i]));
+    else if (state.filter === 'skipped') idx = idx.filter((i) => isSkipped(state.pool[i]));
     if (state.shuffle) {
       for (let i = idx.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -183,6 +194,7 @@
     for (const deck of state.index) {
       const on = state.selected.has(deck.slug);
       const starCount = starsFor(deck.slug).size;
+      const skipCount = skipsFor(deck.slug).size;
 
       const btn = document.createElement('button');
       btn.className = 'deck' + (on ? ' current' : '');
@@ -192,8 +204,11 @@
         '<span class="deck-text"><span class="deck-name"></span><span class="deck-meta"></span></span>' +
         '<span class="deck-count"></span>';
       btn.querySelector('.deck-name').textContent = deck.title;
-      btn.querySelector('.deck-meta').textContent =
-        [deck.source, starCount ? starCount + ' starred' : ''].filter(Boolean).join(' · ');
+      btn.querySelector('.deck-meta').textContent = [
+        deck.source,
+        starCount ? starCount + ' starred' : '',
+        skipCount ? skipCount + ' known' : '',
+      ].filter(Boolean).join(' · ');
       btn.querySelector('.deck-count').textContent = String(deck.count);
 
       btn.addEventListener('click', async () => {
@@ -244,12 +259,19 @@
     el.next.disabled = empty || state.pos >= state.order.length - 1;
     el.flip.disabled = empty;
     el.star.hidden = empty;
+    el.skip.hidden = empty;
     el.speak.hidden = empty || !speech.supported;
 
     if (empty) {
-      el.studyEmpty.textContent = state.filter === 'starred'
-        ? 'No starred words in the selected sets yet — tap ☆ on a card to save it here.'
-        : 'Tick a set below to start.';
+      const nothingSelected = state.selected.size === 0;
+      const messages = {
+        practicing: state.pool.length
+          ? 'Every word in these sets is marked as known. Switch the filter to Skipped to bring some back.'
+          : 'Tick a set below to start.',
+        starred: 'No starred words in these sets yet — tap ☆ on a card to save it here.',
+        skipped: 'Nothing skipped yet — tap ✓ on a word he has nailed and it drops out of practice.',
+      };
+      el.studyEmpty.textContent = nothingSelected ? 'Tick a set below to start.' : messages[state.filter];
       el.counter.textContent = '0 / 0';
       el.fill.style.width = '0%';
       return;
@@ -275,6 +297,8 @@
     const starred = isStarred(entry);
     el.star.classList.toggle('on', starred);
     el.star.innerHTML = starred ? '&#9733;' : '&#9734;';
+
+    el.skip.classList.toggle('on', isSkipped(entry));
   }
 
   function flip() {
@@ -302,10 +326,47 @@
   function toggleStar() {
     const entry = currentEntry();
     if (!entry) return;
-    const set = starsFor(entry.slug);
-    if (set.has(entry.card.es)) set.delete(entry.card.es);
-    else set.add(entry.card.es);
-    store.set(starKey(entry.slug), [...set]);
+    const stars = starsFor(entry.slug);
+    const skips = skipsFor(entry.slug);
+    if (stars.has(entry.card.es)) {
+      stars.delete(entry.card.es);
+    } else {
+      stars.add(entry.card.es);
+      skips.delete(entry.card.es);   // can't be both shaky and nailed
+      store.set(skipKey(entry.slug), [...skips]);
+    }
+    store.set(starKey(entry.slug), [...stars]);
+    render();
+    renderDeckList();
+  }
+
+  // Marking a word known drops it out of practice immediately, so the pile has
+  // to be rebuilt underneath us — keeping our place rather than jumping to card 1.
+  function toggleSkip() {
+    const entry = currentEntry();
+    if (!entry) return;
+    const skips = skipsFor(entry.slug);
+    const stars = starsFor(entry.slug);
+    const wasSkipped = skips.has(entry.card.es);
+
+    if (wasSkipped) {
+      skips.delete(entry.card.es);
+    } else {
+      skips.add(entry.card.es);
+      stars.delete(entry.card.es);
+      store.set(starKey(entry.slug), [...stars]);
+    }
+    store.set(skipKey(entry.slug), [...skips]);
+
+    speech.stop();
+    setSpeaking(false);
+    el.card.classList.remove('flipped');
+    state.flipped = false;
+
+    const at = state.pos;
+    rebuildOrder();
+    // The card just left the pile, so the next one has slid into its index.
+    state.pos = Math.min(at, Math.max(0, state.order.length - 1));
     render();
     renderDeckList();
   }
@@ -330,8 +391,9 @@
     el.dir.textContent = state.dir === 'es-en' ? 'ES → EN' : 'EN → ES';
     el.shuffle.textContent = 'Shuffle: ' + (state.shuffle ? 'on' : 'off');
     el.shuffle.classList.toggle('on', state.shuffle);
-    el.filter.textContent = state.filter === 'all' ? 'All words' : 'Starred only';
-    el.filter.classList.toggle('on', state.filter === 'starred');
+    const filterLabel = { practicing: 'Practicing', starred: 'Starred only', skipped: 'Skipped' };
+    el.filter.textContent = filterLabel[state.filter];
+    el.filter.classList.toggle('on', state.filter !== 'practicing');
   }
 
   // ---- Events ----
@@ -344,6 +406,7 @@
   el.next.addEventListener('click', () => go(1));
   el.star.addEventListener('click', toggleStar);
   el.speak.addEventListener('click', pronounce);
+  el.skip.addEventListener('click', toggleSkip);
 
   el.selectAll.addEventListener('click', async () => {
     if (state.selected.size === state.index.length) state.selected.clear();
@@ -372,7 +435,8 @@
   });
 
   el.filter.addEventListener('click', () => {
-    state.filter = state.filter === 'all' ? 'starred' : 'all';
+    const cycle = { practicing: 'starred', starred: 'skipped', skipped: 'practicing' };
+    state.filter = cycle[state.filter];
     speech.stop();
     setSpeaking(false);
     el.card.classList.remove('flipped');
@@ -388,6 +452,7 @@
     else if (e.key === 'ArrowLeft') go(-1);
     else if (e.key === 's' || e.key === 'S') toggleStar();
     else if (e.key === 'p' || e.key === 'P') pronounce();
+    else if (e.key === 'k' || e.key === 'K') toggleSkip();
     else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); flip(); }
   });
 

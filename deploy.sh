@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 echo "→ uploading…"
 tar czf - --exclude=node_modules --exclude=package-lock.json \
-    public decks server.js package.json \
+    public decks lib server.js package.json \
   | ssh locyfish 'mkdir -p ~/spanish-app && tar xzf - -C ~/spanish-app \
       && cd ~/spanish-app && npm install --omit=dev --no-audit --no-fund >/dev/null'
 

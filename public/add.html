@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#c8442b">
+<title>Add words · Spanish Flashcards</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="wrap">
+
+  <header class="add-head">
+    <h1>Add words from a photo</h1>
+    <p class="sub"><a href="/" class="back-link">&larr; back to practice</a></p>
+  </header>
+
+  <!-- ── Passcode ────────────────────────────────────────── -->
+  <section id="gate" class="panel" hidden>
+    <h2 class="panel-title">Passcode</h2>
+    <p class="sets-hint">Only needed once on this phone — it stays signed in for 30 days.</p>
+    <form id="login-form" class="gate-form">
+      <input id="passcode" class="field" type="password" inputmode="text"
+             autocomplete="current-password" placeholder="passcode" required>
+      <button class="btn primary" type="submit">Sign in</button>
+    </form>
+    <p id="gate-error" class="error" hidden></p>
+  </section>
+
+  <!-- ── Pick photos ─────────────────────────────────────── -->
+  <section id="pick" class="panel" hidden>
+    <h2 class="panel-title">1 · Photograph the page</h2>
+    <p class="sets-hint">
+      Get the whole vocabulary box in frame, as straight and bright as you can.
+      Up to 4 photos at once.
+    </p>
+    <input id="files" type="file" accept="image/*" multiple hidden>
+    <button id="choose" class="btn primary big" type="button">Take or choose photos</button>
+    <div id="thumbs" class="thumbs"></div>
+    <button id="extract" class="btn primary" type="button" hidden>Read the page</button>
+    <p id="pick-error" class="error" hidden></p>
+  </section>
+
+  <!-- ── Working ─────────────────────────────────────────── -->
+  <section id="working" class="panel" hidden>
+    <h2 class="panel-title">Reading the page…</h2>
+    <p class="sets-hint">This takes a few seconds.</p>
+    <div class="progress-bar indeterminate"><div></div></div>
+  </section>
+
+  <!-- ── Review ──────────────────────────────────────────── -->
+  <section id="review" class="panel" hidden>
+    <h2 class="panel-title">2 · Check it before saving</h2>
+    <p class="sets-hint">Fix anything misread. Empty rows are dropped.</p>
+
+    <div id="warnings" class="warnings" hidden></div>
+
+    <label class="field-label">Set name
+      <input id="deck-title" class="field" type="text" placeholder="e.g. P · La familia">
+    </label>
+    <label class="field-label">Where it's from
+      <input id="deck-source" class="field" type="text" placeholder="e.g. Vocabulario, p. 34">
+    </label>
+
+    <div id="rows" class="rows"></div>
+    <button id="add-row" class="btn" type="button">+ Add a row</button>
+
+    <div class="review-actions">
+      <button id="cancel" class="btn" type="button">Start over</button>
+      <button id="save" class="btn primary" type="button">Save set</button>
+    </div>
+    <p id="review-error" class="error" hidden></p>
+  </section>
+
+  <!-- ── Done ────────────────────────────────────────────── -->
+  <section id="done" class="panel" hidden>
+    <h2 class="panel-title">Saved</h2>
+    <p id="done-text" class="sets-hint"></p>
+    <div class="review-actions">
+      <a class="btn" href="/add">Add another page</a>
+      <a class="btn primary" href="/">Go practice</a>
+    </div>
+  </section>
+
+</main>
+<script src="/add.js"></script>
+</body>
+</html>

@@ -18,6 +18,28 @@ No database. Decks are JSON files in `decks/`, read fresh on every request — d
 new file publishes it without a restart. Per-device state (starred words, shuffle and
 direction preferences) lives in the browser's localStorage.
 
+## Adding sets from photos
+
+`/add` turns photos of a textbook page into a set: the phone shrinks each shot to
+1600px, the server sends them to Claude (vision) for extraction, and the result is
+shown for review and correction **before** anything is saved. Extraction reports a
+`warnings` array — a cut-off list, glare, an unreadable word, a second box it left
+alone — shown in red above the rows.
+
+Originals are kept in `uploads/` (gitignored) and referenced by the deck's `photos`
+field, so a bad extraction can be redone without rephotographing the book.
+
+Server config lives in `.env` on the box (gitignored, `chmod 600`):
+
+| Variable | Purpose |
+|---|---|
+| `SPANISH_PASSCODE` | Gate for `/add` and both write endpoints. Unset = adding is off. |
+| `SESSION_SECRET` | Signs the 30-day auth cookie. |
+| `ANTHROPIC_API_KEY` | Enables photo reading. Unset = the page says so and the button is inert. |
+
+Studying stays public — only adding is behind the passcode, so practice has no
+friction. nginx needs `client_max_body_size 15m` for multi-photo uploads.
+
 ## Deck format
 
 One file per set, `decks/<slug>.json`:
@@ -84,5 +106,17 @@ that needs a third-party TTS vendor, which this app currently avoids.
 
 ## Keyboard / touch
 
-Space or Enter flips · ← → change cards · `s` stars · `p` pronounces ·
-swipe left/right on a phone.
+Space or Enter flips · ← → change cards · `s` stars · `k` marks known ·
+`p` pronounces · swipe left/right on a phone.
+
+## Practice state
+
+Three per-device lists, all in localStorage, all keyed on the Spanish text:
+
+- **starred** (`sf:starred:<slug>`) — words to drill more
+- **skipped** (`sf:skipped:<slug>`) — words he's got; dropped from practice
+- **selected** (`sf:selected`) — which sets are ticked
+
+Starring and skipping are mutually exclusive. The filter button cycles
+**Practicing** (everything minus skipped) → **Starred only** → **Skipped**, the last
+of which exists so a word can be brought back.

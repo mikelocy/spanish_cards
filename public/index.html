@@ -27,7 +27,13 @@
                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </button>
-      <button id="star" class="icon-btn star" aria-label="Star this word">&#9734;</button>
+      <button id="star" class="icon-btn star" aria-label="Star this word — practice it more">&#9734;</button>
+      <button id="skip" class="icon-btn skip" aria-label="I know this one — skip it from now on">
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true">
+          <path d="M4.5 12.5l5 5 10-11" fill="none" stroke="currentColor"
+                stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </header>
 
     <div class="progress-wrap">
@@ -74,6 +80,7 @@
     <p class="sets-hint">Tick more than one to practice them together.</p>
     <div id="deck-list" class="deck-list"></div>
     <p id="home-empty" class="empty" hidden>No card sets yet.</p>
+    <p class="add-cta"><a href="/add">+ Add words from a photo</a></p>
   </section>
 
 </main>
