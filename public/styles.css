@@ -29,6 +29,10 @@
 }
 
 * { box-sizing: border-box; }
+
+/* Any author `display` beats the UA's [hidden] rule, so buttons that set
+   display:grid ignored el.x.hidden entirely. Make hidden actually hide. */
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
