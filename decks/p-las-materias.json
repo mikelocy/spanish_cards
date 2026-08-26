@@ -1,0 +1,19 @@
+{
+  "slug": "p-las-materias",
+  "title": "P · Las materias (school subjects)",
+  "source": "Vocabulario",
+  "order": 6,
+  "cards": [
+    { "es": "las materias", "en": "subjects" },
+    { "es": "el arte", "en": "art" },
+    { "es": "las ciencias", "en": "science" },
+    { "es": "el español", "en": "Spanish" },
+    { "es": "la geografía", "en": "geography" },
+    { "es": "la historia", "en": "history" },
+    { "es": "el inglés", "en": "English" },
+    { "es": "las matemáticas", "en": "math" },
+    { "es": "la música", "en": "music" },
+    { "es": "estudio", "en": "I study" },
+    { "es": "estudias", "en": "you study" }
+  ]
+}

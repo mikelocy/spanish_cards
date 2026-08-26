@@ -1,0 +1,21 @@
+{
+  "slug": "p-como-te-llamas",
+  "title": "P · ¿Cómo te llamas?",
+  "source": "Conversaciones — Vocabulario",
+  "order": 1,
+  "cards": [
+    { "es": "Hola.", "en": "Hello. / Hi." },
+    { "es": "¿Cómo se llama usted?", "en": "What is your name? (formal)" },
+    { "es": "¿Cómo te llamas?", "en": "What is your name? (informal)" },
+    { "es": "Me llamo…", "en": "My name is…" },
+    { "es": "¿Y usted?", "en": "And you? (formal)" },
+    { "es": "¿Y tú?", "en": "And you? (informal)" },
+    { "es": "Mucho gusto.", "en": "It's a pleasure." },
+    { "es": "El gusto es mío.", "en": "The pleasure is all mine." },
+    { "es": "Igualmente.", "en": "Likewise." },
+    { "es": "Encantado/a.", "en": "Charmed. Delighted.", "note": "encantado if you are male, encantada if female" },
+    { "es": "el nombre", "en": "name" },
+    { "es": "el señor (Sr.)", "en": "Mr." },
+    { "es": "la señora (Sra.)", "en": "Ms., Mrs." }
+  ]
+}

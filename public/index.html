@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#c8442b">
+<title>Spanish Flashcards</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main class="wrap">
+
+  <!-- ── Card ────────────────────────────────────────────── -->
+  <section id="study" class="study" hidden>
+    <header class="study-head">
+      <div class="head-mid">
+        <h1 id="deck-title"></h1>
+        <p id="deck-source" class="sub"></p>
+      </div>
+      <button id="star" class="icon-btn star" aria-label="Star this word">&#9734;</button>
+    </header>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <p id="counter" class="counter"></p>
+    </div>
+
+    <div id="card" class="card" role="button" tabindex="0" aria-label="Flashcard, tap to flip">
+      <div class="card-inner">
+        <div class="face front">
+          <span id="front-lang" class="lang"></span>
+          <p id="front-text" class="word"></p>
+          <span id="front-from" class="from"></span>
+        </div>
+        <div class="face back">
+          <span id="back-lang" class="lang"></span>
+          <p id="back-text" class="word"></p>
+          <p id="back-note" class="note"></p>
+        </div>
+      </div>
+    </div>
+
+    <p id="study-empty" class="empty"></p>
+
+    <div class="nav">
+      <button id="prev" class="nav-btn" aria-label="Previous card">&larr;</button>
+      <button id="flip" class="nav-btn flip-btn">Flip</button>
+      <button id="next" class="nav-btn" aria-label="Next card">&rarr;</button>
+    </div>
+
+    <div class="tools">
+      <button id="dir" class="tool">ES &rarr; EN</button>
+      <button id="shuffle" class="tool">Shuffle: off</button>
+      <button id="filter" class="tool">All words</button>
+    </div>
+  </section>
+
+  <!-- ── Sets ────────────────────────────────────────────── -->
+  <section class="sets">
+    <div class="sets-head">
+      <h2 class="sets-title">Sets</h2>
+      <button id="select-all" class="link-btn">Select all</button>
+    </div>
+    <p class="sets-hint">Tick more than one to practice them together.</p>
+    <div id="deck-list" class="deck-list"></div>
+    <p id="home-empty" class="empty" hidden>No card sets yet.</p>
+  </section>
+
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

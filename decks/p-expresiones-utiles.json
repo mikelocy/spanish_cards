@@ -1,0 +1,20 @@
+{
+  "slug": "p-expresiones-utiles",
+  "title": "P · Expresiones útiles",
+  "source": "Classroom expressions",
+  "order": 7,
+  "cards": [
+    { "es": "¿Cómo se dice ___ en español?", "en": "How do you say ___ in Spanish?" },
+    { "es": "Con permiso.", "en": "Excuse me." },
+    { "es": "De nada.", "en": "You're welcome." },
+    { "es": "¿De veras?", "en": "Really?" },
+    { "es": "¿En qué página estamos?", "en": "What page are we on?" },
+    { "es": "Más despacio, por favor.", "en": "Slower, please." },
+    { "es": "Muchas gracias.", "en": "Thanks a lot." },
+    { "es": "No entiendo.", "en": "I don't understand." },
+    { "es": "No sé.", "en": "I don't know." },
+    { "es": "Por favor.", "en": "Please." },
+    { "es": "¿Qué significa ___?", "en": "What does ___ mean?" },
+    { "es": "Tengo una pregunta.", "en": "I have a question." }
+  ]
+}

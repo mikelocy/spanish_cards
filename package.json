@@ -1,0 +1,13 @@
+{
+  "name": "spanish-flashcards",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spanish flashcards - spanish.locyfish.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

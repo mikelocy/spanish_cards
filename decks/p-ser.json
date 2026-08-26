@@ -1,0 +1,18 @@
+{
+  "slug": "p-ser",
+  "title": "P · Ser (to be)",
+  "source": "Soy de los Estados Unidos — verb chart",
+  "order": 3,
+  "cards": [
+    { "es": "yo soy", "en": "I am" },
+    { "es": "tú eres", "en": "you are (familiar)" },
+    { "es": "él es", "en": "he is" },
+    { "es": "ella es", "en": "she is" },
+    { "es": "usted es", "en": "you are (formal)" },
+    { "es": "nosotros somos", "en": "we are" },
+    { "es": "nosotras somos", "en": "we are (all-female group)" },
+    { "es": "ellos son", "en": "they are" },
+    { "es": "ellas son", "en": "they are (all-female group)" },
+    { "es": "ustedes son", "en": "you are (plural)" }
+  ]
+}

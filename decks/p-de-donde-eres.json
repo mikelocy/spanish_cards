@@ -1,0 +1,14 @@
+{
+  "slug": "p-de-donde-eres",
+  "title": "P · ¿De dónde eres?",
+  "source": "Soy de los Estados Unidos — Vocabulario",
+  "order": 2,
+  "cards": [
+    { "es": "la bandera", "en": "flag" },
+    { "es": "la capital", "en": "capital (city)" },
+    { "es": "la chica", "en": "girl" },
+    { "es": "el chico", "en": "boy" },
+    { "es": "la nacionalidad", "en": "nationality" },
+    { "es": "el país", "en": "country" }
+  ]
+}
