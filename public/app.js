@@ -491,4 +491,11 @@
   }
 
   init();
+
+  // Offline support. Failure here is never fatal — the app just stays online-only.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
 })();
