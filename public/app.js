@@ -7,7 +7,7 @@
   const el = {
     study: $('study'),
     deckList: $('deck-list'), homeEmpty: $('home-empty'), selectAll: $('select-all'),
-    title: $('deck-title'), source: $('deck-source'), star: $('star'),
+    title: $('deck-title'), source: $('deck-source'), star: $('star'), speak: $('speak'),
     fill: $('progress-fill'), counter: $('counter'),
     card: $('card'), frontLang: $('front-lang'), frontText: $('front-text'),
     frontFrom: $('front-from'),
@@ -43,6 +43,72 @@
     shuffle: store.get('sf:shuffle', false),
     filter: 'all',
   };
+
+  // ---- Speech ----
+  // Uses the device's own Spanish voice. Nothing is sent anywhere; if the
+  // browser has no speech support the button stays hidden.
+  const speech = {
+    supported: 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window,
+    voice: null,
+
+    pickVoice() {
+      if (!this.supported) return;
+      const voices = window.speechSynthesis.getVoices() || [];
+      const spanish = voices.filter((v) => /^es[-_]?/i.test(v.lang));
+      // Latin American Spanish first — closest to what a US school teaches.
+      const order = ['es-mx', 'es-us', 'es-419', 'es-co', 'es-ar', 'es-cl', 'es-es'];
+      const rank = (v) => {
+        const i = order.indexOf(v.lang.replace('_', '-').toLowerCase());
+        return i === -1 ? order.length : i;
+      };
+      spanish.sort((a, b) => rank(a) - rank(b));
+      this.voice = spanish[0] || null;
+    },
+
+    say(text, onState) {
+      if (!this.supported || !text) return;
+      try {
+        // iOS wedges after an interrupted utterance unless we clear the queue.
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        if (this.voice) u.voice = this.voice;
+        u.lang = (this.voice && this.voice.lang) || 'es-MX';
+        u.rate = 0.9;  // a touch under natural pace — he's learning it
+        u.onstart = () => onState(true);
+        u.onend = () => onState(false);
+        u.onerror = () => onState(false);
+        window.speechSynthesis.speak(u);
+      } catch {
+        onState(false);
+      }
+    },
+
+    stop() {
+      if (this.supported) { try { window.speechSynthesis.cancel(); } catch { /* ignore */ } }
+    },
+  };
+
+  if (speech.supported) {
+    speech.pickVoice();
+    // The voice list is populated asynchronously on most browsers.
+    window.speechSynthesis.addEventListener?.('voiceschanged', () => speech.pickVoice());
+  }
+
+  // Cards carry teaching notation a voice should not read aloud: fill-in
+  // blanks, bracketed placeholders, gender slashes, parenthetical glosses.
+  // A card can override the whole thing with its own "say" field.
+  function spokenForm(card) {
+    if (card.say) return card.say;
+    return card.es
+      .replace(/\([^)]*\)/g, ' ')
+      .replace(/\[[^\]]*\]/g, ' ')
+      .replace(/_+/g, ' ')
+      .replace(/\s*\/\s*/g, ', ')
+      .replace(/[…]+/g, ',')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/\s+([?!.,])/g, '$1')
+      .trim();
+  }
 
   const starKey = (slug) => `sf:starred:${slug}`;
   const starsFor = (slug) => {
@@ -99,6 +165,8 @@
     rebuildOrder();
     if (keepPos) state.pos = Math.min(prev, Math.max(0, state.order.length - 1));
 
+    speech.stop();
+    setSpeaking(false);
     el.study.hidden = state.selected.size === 0;
     el.card.classList.remove('flipped');
     syncHeader();
@@ -176,6 +244,7 @@
     el.next.disabled = empty || state.pos >= state.order.length - 1;
     el.flip.disabled = empty;
     el.star.hidden = empty;
+    el.speak.hidden = empty || !speech.supported;
 
     if (empty) {
       el.studyEmpty.textContent = state.filter === 'starred'
@@ -218,6 +287,8 @@
   function go(delta) {
     const target = state.pos + delta;
     if (target < 0 || target >= state.order.length) return;
+    speech.stop();
+    setSpeaking(false);
     state.pos = target;
     if (state.flipped) {
       state.flipped = false;
@@ -239,6 +310,22 @@
     renderDeckList();
   }
 
+  function setSpeaking(on) {
+    el.speak.classList.toggle('speaking', on);
+  }
+
+  function pronounce() {
+    const entry = currentEntry();
+    if (!entry || !speech.supported) return;
+    // Second press while it's talking stops it.
+    if (el.speak.classList.contains('speaking')) {
+      speech.stop();
+      setSpeaking(false);
+      return;
+    }
+    speech.say(spokenForm(entry.card), setSpeaking);
+  }
+
   function syncTools() {
     el.dir.textContent = state.dir === 'es-en' ? 'ES → EN' : 'EN → ES';
     el.shuffle.textContent = 'Shuffle: ' + (state.shuffle ? 'on' : 'off');
@@ -256,6 +343,7 @@
   el.prev.addEventListener('click', () => go(-1));
   el.next.addEventListener('click', () => go(1));
   el.star.addEventListener('click', toggleStar);
+  el.speak.addEventListener('click', pronounce);
 
   el.selectAll.addEventListener('click', async () => {
     if (state.selected.size === state.index.length) state.selected.clear();
@@ -275,6 +363,8 @@
   el.shuffle.addEventListener('click', () => {
     state.shuffle = !state.shuffle;
     store.set('sf:shuffle', state.shuffle);
+    speech.stop();
+    setSpeaking(false);
     el.card.classList.remove('flipped');
     rebuildOrder();
     syncTools();
@@ -283,6 +373,8 @@
 
   el.filter.addEventListener('click', () => {
     state.filter = state.filter === 'all' ? 'starred' : 'all';
+    speech.stop();
+    setSpeaking(false);
     el.card.classList.remove('flipped');
     rebuildOrder();
     syncTools();
@@ -295,6 +387,7 @@
     if (e.key === 'ArrowRight') go(1);
     else if (e.key === 'ArrowLeft') go(-1);
     else if (e.key === 's' || e.key === 'S') toggleStar();
+    else if (e.key === 'p' || e.key === 'P') pronounce();
     else if (e.key === ' ' && e.target === document.body) { e.preventDefault(); flip(); }
   });
 

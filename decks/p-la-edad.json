@@ -7,6 +7,6 @@
     { "es": "el año / los años", "en": "year / years" },
     { "es": "¿Cuántos años tienes?", "en": "How old are you? (familiar)" },
     { "es": "¿Cuántos años tiene usted?", "en": "How old are you? (formal)" },
-    { "es": "(Yo) tengo [número] años.", "en": "I am [number] years old." }
+    { "es": "(Yo) tengo [número] años.", "en": "I am [number] years old.", "say": "Yo tengo años." }
   ]
 }

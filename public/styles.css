@@ -64,6 +64,16 @@ h1, h2 { margin: 0; line-height: 1.2; }
 .icon-btn:active { background: var(--surface-2); }
 .icon-btn.star.on { color: var(--gold); border-color: var(--gold); }
 
+.icon-btn.speak svg { display: block; }
+.icon-btn.speak .wave { opacity: .9; }
+.icon-btn.speak.speaking { color: var(--accent); border-color: var(--accent); }
+.icon-btn.speak.speaking .wave-1 { animation: wave 1s ease-in-out infinite; }
+.icon-btn.speak.speaking .wave-2 { animation: wave 1s ease-in-out .18s infinite; }
+@keyframes wave {
+  0%, 100% { opacity: .25; }
+  50%      { opacity: 1; }
+}
+
 .progress-wrap { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
 .progress-bar { flex: 1; height: 6px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
 #progress-fill { height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .2s ease; }
@@ -250,4 +260,6 @@ h1, h2 { margin: 0; line-height: 1.2; }
 
 @media (prefers-reduced-motion: reduce) {
   .card-inner, #progress-fill, .deck, .check { transition: none; }
+  .icon-btn.speak.speaking .wave-1,
+  .icon-btn.speak.speaking .wave-2 { animation: none; }
 }

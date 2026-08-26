@@ -13,7 +13,7 @@
     { "es": "Mucho gusto.", "en": "It's a pleasure." },
     { "es": "El gusto es mío.", "en": "The pleasure is all mine." },
     { "es": "Igualmente.", "en": "Likewise." },
-    { "es": "Encantado/a.", "en": "Charmed. Delighted.", "note": "encantado if you are male, encantada if female" },
+    { "es": "Encantado/a.", "en": "Charmed. Delighted.", "note": "encantado if you are male, encantada if female", "say": "Encantado. Encantada." },
     { "es": "el nombre", "en": "name" },
     { "es": "el señor (Sr.)", "en": "Mr." },
     { "es": "la señora (Sra.)", "en": "Ms., Mrs." }
