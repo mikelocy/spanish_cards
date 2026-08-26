@@ -262,7 +262,7 @@
     el.flip.disabled = empty;
     el.star.hidden = empty;
     el.skip.hidden = empty;
-    el.speak.hidden = empty || !speech.supported;
+    el.speak.hidden = empty || !audioAllowed();
 
     if (empty) {
       const nothingSelected = state.selected.size === 0;
@@ -318,6 +318,7 @@
     if (!currentEntry()) return;
     state.flipped = !state.flipped;
     el.card.classList.toggle('flipped', state.flipped);
+    syncSpeak();
   }
 
   // Change cards without letting the answer swap in visibly mid-flip-back.
@@ -392,6 +393,15 @@
     return state.listen && state.dir === 'es-en' && speech.supported;
   }
 
+  function audioAllowed() {
+    if (!speech.supported) return false;
+    return state.dir === 'es-en' || state.flipped;
+  }
+
+  function syncSpeak() {
+    el.speak.hidden = !currentEntry() || !audioAllowed();
+  }
+
   function playCurrent() {
     const entry = currentEntry();
     if (!entry) return;
@@ -404,7 +414,7 @@
 
   function pronounce() {
     const entry = currentEntry();
-    if (!entry || !speech.supported) return;
+    if (!entry || !audioAllowed()) return;
     // Second press while it's talking stops it.
     if (el.speak.classList.contains('speaking')) {
       speech.stop();
