@@ -33,6 +33,20 @@
 /* Any author `display` beats the UA's [hidden] rule, so buttons that set
    display:grid ignored el.x.hidden entirely. Make hidden actually hide. */
 [hidden] { display: none !important; }
+
+/* iOS waits ~300ms after a tap to see whether a second one is coming, and
+   treats two quick taps as zoom — so tapping Next twice in a row zoomed the
+   page instead of advancing. This opts every control out of double-tap zoom
+   (and removes the tap delay with it). Pinch zoom still works, which is why
+   this is the right fix rather than user-scalable=no in the viewport.
+
+   Set on body as well, so a tap that slips off a button onto the background
+   can't trigger it either. touch-action intersects down the tree, so the
+   card's pan-y below still wins for swipes. Nothing here benefits from
+   double-tap zoom; pinch remains for anyone who needs to magnify. */
+body, button, a, input, label, summary, .card, .deck {
+  touch-action: manipulation;
+}
 body {
   margin: 0;
   background: var(--bg);
