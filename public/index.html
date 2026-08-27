@@ -18,6 +18,29 @@
 <body>
 <main class="wrap">
 
+  <!-- ── Top bar ─────────────────────────────────────────── -->
+  <div class="topbar">
+    <span class="brand">Español</span>
+    <div class="menu-wrap">
+      <button id="menu-btn" class="menu-btn" type="button"
+              aria-haspopup="true" aria-expanded="false" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <circle cx="5" cy="12" r="1.9" fill="currentColor"/>
+          <circle cx="12" cy="12" r="1.9" fill="currentColor"/>
+          <circle cx="19" cy="12" r="1.9" fill="currentColor"/>
+        </svg>
+      </button>
+
+      <div id="menu" class="menu" role="menu" hidden>
+        <div id="voice-row" class="menu-field" hidden>
+          <label for="voice">Spanish voice</label>
+          <select id="voice"></select>
+        </div>
+        <a class="menu-item" href="/add" role="menuitem">Add words from a photo</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Card ────────────────────────────────────────────── -->
   <section id="study" class="study" hidden>
     <header class="study-head">
@@ -87,11 +110,6 @@
       <button id="filter" class="tool">All words</button>
       <button id="listen" class="tool" hidden>Listen: off</button>
     </div>
-
-    <div id="voice-row" class="voice-row" hidden>
-      <label for="voice">Voice</label>
-      <select id="voice"></select>
-    </div>
   </section>
 
   <!-- ── Sets ────────────────────────────────────────────── -->
@@ -103,7 +121,6 @@
     <p class="sets-hint">Tick more than one to practice them together.</p>
     <div id="deck-list" class="deck-list"></div>
     <p id="home-empty" class="empty" hidden>No card sets yet.</p>
-    <p class="add-cta"><a href="/add">+ Add words from a photo</a></p>
   </section>
 
 </main>

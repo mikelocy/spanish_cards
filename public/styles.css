@@ -447,30 +447,75 @@ h1, h2 { margin: 0; line-height: 1.2; }
   color: var(--ink-soft);
 }
 
-/* Voice picker — only rendered when the device has more than one Spanish
-   voice installed, which is the case once better ones are downloaded. */
-.voice-row {
+
+/* ── Top bar + menu ──────────────────────────────────────── */
+.topbar {
   display: flex;
   align-items: center;
-  gap: .6rem;
-  margin-top: .6rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
-.voice-row label {
-  font-size: .72rem;
+.brand {
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.menu-wrap { position: relative; }
+.menu-btn {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.menu-btn:active { background: var(--surface-2); }
+.menu-btn svg { display: block; }
+
+.menu {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  z-index: 20;
+  min-width: 240px;
+  max-width: min(84vw, 320px);
+  padding: .5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+.menu-field { padding: .5rem .6rem .6rem; }
+.menu-field label {
+  display: block;
+  margin-bottom: .35rem;
+  font-size: .68rem;
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  flex: none;
 }
-.voice-row select {
-  flex: 1;
-  min-width: 0;
+.menu-field select {
+  width: 100%;
   padding: .5rem .6rem;
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 10px;
   color: var(--ink);
   font: inherit;
-  font-size: .82rem;
+  font-size: .85rem;
 }
+.menu-item {
+  display: block;
+  padding: .65rem .6rem;
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: .9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.menu-item:hover { background: var(--surface-2); color: var(--accent); }

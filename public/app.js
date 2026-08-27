@@ -17,6 +17,7 @@
     dir: $('dir'), shuffle: $('shuffle'), filter: $('filter'), listen: $('listen'),
     replay: $('replay'), backSpanish: $('back-spanish'),
     voiceRow: $('voice-row'), voiceSelect: $('voice'),
+    menuBtn: $('menu-btn'), menu: $('menu'),
     studyEmpty: $('study-empty'),
   };
 
@@ -517,6 +518,25 @@
       speech.say(currentEntry() ? spokenForm(currentEntry().card) : 'Hola, buenos días', setSpeaking);
     });
   }
+
+  function closeMenu() {
+    el.menu.hidden = true;
+    el.menuBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  el.menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = el.menu.hidden;
+    el.menu.hidden = !open;
+    el.menuBtn.setAttribute('aria-expanded', String(open));
+  });
+
+  // Anywhere outside dismisses it; clicks inside must not.
+  el.menu.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => { if (!el.menu.hidden) closeMenu(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !el.menu.hidden) closeMenu();
+  });
 
   el.listen.addEventListener('click', () => {
     state.listen = !state.listen;
