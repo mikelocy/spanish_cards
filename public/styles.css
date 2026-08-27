@@ -446,3 +446,31 @@ h1, h2 { margin: 0; line-height: 1.2; }
   font-weight: 650;
   color: var(--ink-soft);
 }
+
+/* Voice picker — only rendered when the device has more than one Spanish
+   voice installed, which is the case once better ones are downloaded. */
+.voice-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-top: .6rem;
+}
+.voice-row label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  flex: none;
+}
+.voice-row select {
+  flex: 1;
+  min-width: 0;
+  padding: .5rem .6rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  font: inherit;
+  font-size: .82rem;
+}

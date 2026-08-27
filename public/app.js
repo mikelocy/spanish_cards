@@ -16,6 +16,7 @@
     prev: $('prev'), next: $('next'), flip: $('flip'),
     dir: $('dir'), shuffle: $('shuffle'), filter: $('filter'), listen: $('listen'),
     replay: $('replay'), backSpanish: $('back-spanish'),
+    voiceRow: $('voice-row'), voiceSelect: $('voice'),
     studyEmpty: $('study-empty'),
   };
 
@@ -55,18 +56,37 @@
     supported: 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window,
     voice: null,
 
+    all: [],
+
+    // iOS ships a small "compact" voice per language and only downloads the
+    // good ones on request — the compact Spanish voice is the buzzy robot.
+    // Quality therefore outranks locale here: a premium Castilian voice is a
+    // better listening model than a compact Mexican one.
+    rank(v) {
+      const name = (v.name || '').toLowerCase();
+      let score = 0;
+      if (/premium|neural/.test(name)) score -= 40;
+      else if (/enhanced/.test(name)) score -= 30;
+      if (/compact|eloquence/.test(name)) score += 30;
+      if (v.localService) score -= 5;   // works offline
+
+      const locales = ['es-mx', 'es-us', 'es-419', 'es-co', 'es-ar', 'es-cl', 'es-es'];
+      const i = locales.indexOf(String(v.lang).replace('_', '-').toLowerCase());
+      score += i === -1 ? locales.length : i;
+      return score;
+    },
+
     pickVoice() {
       if (!this.supported) return;
       const voices = window.speechSynthesis.getVoices() || [];
-      const spanish = voices.filter((v) => /^es[-_]?/i.test(v.lang));
-      // Latin American Spanish first — closest to what a US school teaches.
-      const order = ['es-mx', 'es-us', 'es-419', 'es-co', 'es-ar', 'es-cl', 'es-es'];
-      const rank = (v) => {
-        const i = order.indexOf(v.lang.replace('_', '-').toLowerCase());
-        return i === -1 ? order.length : i;
-      };
-      spanish.sort((a, b) => rank(a) - rank(b));
-      this.voice = spanish[0] || null;
+      this.all = voices
+        .filter((v) => /^es[-_]?/i.test(v.lang))
+        .sort((a, b) => this.rank(a) - this.rank(b));
+
+      // Honour an explicit choice; fall back to the best guess.
+      const saved = store.get('sf:voice', '');
+      const chosen = saved && this.all.find((v) => (v.voiceURI || v.name) === saved);
+      this.voice = chosen || this.all[0] || null;
     },
 
     say(text, onState) {
@@ -92,10 +112,31 @@
     },
   };
 
+  function renderVoices() {
+    if (!speech.supported || !el.voiceSelect) return;
+    // Nothing to choose between with only one voice — stay out of the way.
+    el.voiceRow.hidden = speech.all.length < 2;
+    if (speech.all.length < 2) return;
+
+    const current = speech.voice && (speech.voice.voiceURI || speech.voice.name);
+    el.voiceSelect.innerHTML = '';
+    for (const v of speech.all) {
+      const id = v.voiceURI || v.name;
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = v.name + ' (' + v.lang + ')';
+      if (id === current) opt.selected = true;
+      el.voiceSelect.appendChild(opt);
+    }
+  }
+
   if (speech.supported) {
     speech.pickVoice();
     // The voice list is populated asynchronously on most browsers.
-    window.speechSynthesis.addEventListener?.('voiceschanged', () => speech.pickVoice());
+    window.speechSynthesis.addEventListener?.('voiceschanged', () => {
+      speech.pickVoice();
+      renderVoices();
+    });
   }
 
   // Cards carry teaching notation a voice should not read aloud: fill-in
@@ -465,6 +506,18 @@
     playCurrent();
   });
 
+  if (el.voiceSelect) {
+    el.voiceSelect.addEventListener('change', () => {
+      const id = el.voiceSelect.value;
+      const chosen = speech.all.find((v) => (v.voiceURI || v.name) === id);
+      if (!chosen) return;
+      speech.voice = chosen;
+      store.set('sf:voice', id);
+      // Sample the choice immediately rather than making him find a card.
+      speech.say(currentEntry() ? spokenForm(currentEntry().card) : 'Hola, buenos días', setSpeaking);
+    });
+  }
+
   el.listen.addEventListener('click', () => {
     state.listen = !state.listen;
     store.set('sf:listen', state.listen);
@@ -543,6 +596,7 @@
 
   // ---- Init ----
   async function init() {
+    renderVoices();
     try {
       state.index = await (await fetch('/api/decks')).json();
     } catch {
